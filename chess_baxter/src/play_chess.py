@@ -60,7 +60,8 @@ def get_piece_pose(input_linkname):
 # if __name__ == '__main__':
 #     main()
 if __name__ == '__main__':
-    
+    row = 0.2
+    col = 0.2
     # sequence of chess moves
     chess_pieces = [['r0', 'n1', 'b2', 'q3', 'k4', 'b5', 'n6', 'r7'],
                     ['p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'p7'],
@@ -68,7 +69,7 @@ if __name__ == '__main__':
                    [ 'R0', 'N1', 'B2', 'Q3', 'K4', 'B5', 'N6', 'R7']]
 
     chess_moves = ['move1', 'move2', 'move3', 'move4', 'move5', 'move6']
-    move_pieces = []
+    move_pieces = ['p4', 'p3', 'n6', 'b2', 'q3', 'k4']
     move_mechanics = {}
     overhead_orientation = Quaternion(x=-0.0249590815779, y=0.999649402929, z=0.00737916180073, w=0.00486450832011)
     commonPose = Pose(
@@ -78,7 +79,7 @@ if __name__ == '__main__':
     
 
     for i in range(len(chess_moves)):
-        get_piece_pose(move_pieces[i])
+        pos = get_piece_pose(move_pieces[i])
         move_mechanics[chess_moves[i]] = {
             "StartingPose": Pose(
                 position= Point(x=pos.x, y=pos.y, z=pos.z-0.93 + hover_distance),
@@ -86,7 +87,10 @@ if __name__ == '__main__':
             )
         }
     # initialize pick and place node
-    move_mechanics['move1']['EndingPose'] = Pose()
+    move_mechanics['move1']['EndingPose'] = Pose(
+        position= Point(x=move_mechanics['move1']['EndingPose'].position.x, y=move_mechanics['move1']['EndingPose'].position.y+(row*2), z=move_mechanics['move1']['EndingPose'].position.z ),
+        orientaiton= overhead_orientation
+    )
     move_mechanics['move2']['EndingPose'] = Pose()
     move_mechanics['move3']['EndingPose'] = Pose()
     move_mechanics['move4']['EndingPose'] = Pose()

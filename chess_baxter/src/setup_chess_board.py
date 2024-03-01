@@ -78,3 +78,7 @@ def go_to_start():
     pnp = PickAndPlaceMoveIt(limb, hover_distance)
     pnp.move_to_start(central_pose)
     del pnp
+
+
+if __name__ == '__main__':
+    sys.exit(go_to_start())

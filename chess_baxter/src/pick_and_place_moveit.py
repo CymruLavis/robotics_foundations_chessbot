@@ -166,7 +166,7 @@ def move_chess_piece(starting_pose, ending_pose):
     pass
 
 
-def main(starting_pose, ending_pose):
+def main():
     moveit_commander.roscpp_initialize(sys.argv)
     rospy.init_node("ik_pick_and_place_moveit")
     rospy.wait_for_message("/robot/sim/started", Empty)
