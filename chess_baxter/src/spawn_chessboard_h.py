@@ -53,8 +53,8 @@ if __name__ == '__main__':
         with open(model_path + each+".sdf", "r") as f:
             pieces_xml[each] = f.read().replace('\n', '')
 
-    # board_setup = ['rnbqkbnr', 'pppppppp', '', '', '', '', 'PPPPPPPP', 'RNBQKBNR']
-    board_setup = ['r******r', '', '**k*****', '', '', '******K*', '', 'R******R']
+    board_setup = ['rnbqkbnr', 'pppppppp', '', '', '', '', 'PPPPPPPP', 'RNBQKBNR']
+    # board_setup = ['r******r', '', '**k*****', '', '', '******K*', '', 'R******R']
 
 
     # SET A SPAWN POSE
@@ -74,6 +74,9 @@ if __name__ == '__main__':
 
     piece_positionmap = dict()
     piece_names = []
+    spawned_object_poses = {}
+    # setup_chess_board.go_to_start()
+
     for row, each in enumerate(board_setup):
         # print("row:" + str(row)) 
         for col, piece in enumerate(each):
@@ -85,9 +88,14 @@ if __name__ == '__main__':
             if piece in list_pieces:
                 piece_names.append("%s%d" % (piece,col))
                 robo_name = "%s%d" % (piece,col)
-                print srv_call(robo_name, pieces_xml[piece], "", spawn_pose, "world") #CHANGE POSE TO SPAWN POSE
+                
+                # returned_pose = srv_call(robo_name, pieces_xml[piece], "", pose, "world")
+                # spawned_object_poses[robo_name] = pose  # Store the returned pose
+                # print("Spawned object '{}' at pose: {}".format(robo_name, spawned_object_poses[robo_name]))
+                print srv_call(robo_name, pieces_xml[piece], "", pose, "world") #CHANGE POSE TO SPAWN POSE
+                # print srv_call(robo_name, pieces_xml[piece], "", spawn_pose, "world")
                 # pick and place call
-                setup_chess_board.move_piece(spawn_pose=spawn_pose, ending_pose=pose, overhead_orientation=overhead_orientation)
+                # setup_chess_board.move_piece(spawn_pose=spawn_pose, ending_pose=pose, overhead_orientation=overhead_orientation)
                 
                 
                 
@@ -97,5 +105,5 @@ if __name__ == '__main__':
     rospy.set_param('piece_target_position_map', piece_positionmap) # 3D positions for each square in the chessboard
     rospy.set_param('piece_names', piece_names) # Pieces that will be part of the game
     rospy.set_param('pieces_xml', pieces_xml) # File paths to Gazebo models, i.e. SDF files
-
+    # setup_chess_board.go_to_start()
 

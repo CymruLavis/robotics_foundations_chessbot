@@ -4,7 +4,6 @@ import tf
 from gazebo_msgs.msg import LinkStates
 
 # This is hard-coded to block for this exercise, yet you can make the script general by adding cmd line arguments
-input_linkname = "block"
 
 # Global variable where the object's pose is stored
 pose = None
@@ -23,7 +22,7 @@ def get_links_gazebo(link_states_msg):
     pose = poses[input_linkname]
 
 
-def main():
+def main(input_linkname):
     rospy.init_node('gazebo2tfframe')
 
     # Create TF broadcaster -- this will publish a frame give a pose
@@ -46,5 +45,5 @@ def main():
     rospy.spin()
 
 
-if __name__ == '__main__':
-    main()
+# if __name__ == '__main__':
+#     main()
