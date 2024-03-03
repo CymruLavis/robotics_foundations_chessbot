@@ -23,4 +23,3 @@ if __name__ == '__main__':
 
     delete_model("cafe_table")
     delete_model("chessboard")
-

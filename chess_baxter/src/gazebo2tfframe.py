@@ -45,5 +45,5 @@ def main(input_linkname):
     rospy.spin()
 
 
-# if __name__ == '__main__':
-#     main()
+if __name__ == '__main__':
+    main()

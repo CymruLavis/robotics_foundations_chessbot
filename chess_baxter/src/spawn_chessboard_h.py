@@ -4,11 +4,10 @@ from gazebo_msgs.srv import *
 from geometry_msgs.msg import *
 from copy import deepcopy
 import setup_chess_board
-import moveit_commander
 from std_msgs.msg import (
     Empty,
 )
-from pick_and_place_moveit import PickAndPlaceMoveIt
+from setup_chess_board import PickAndPlaceMoveIt
 
 
 # http://wiki.ros.org/simulator_gazebo/Tutorials/ListOfMaterials
@@ -56,26 +55,20 @@ if __name__ == '__main__':
 
     # board_setup = ['rnbqkbnr', 'pppppppp', '', '', '', '', 'PPPPPPPP', 'RNBQKBNR']
     board_setup = ['r******r', '', '**k*****', '', '', '******K*', '', 'R******R']
+    piece_positionmap = dict()
+    piece_names = []
 
 
-    # SET A SPAWN POSE
-    # INITIALIZE PICK AND PLACE NODE
-
-
-    moveit_commander.roscpp_initialize(sys.argv)
-    # rospy.init_node("ik_pick_and_place_moveit")
-    rospy.wait_for_message("/robot/sim/started", Empty)
+    # Initialize pick and place 
+    overhead_orientation = Quaternion(x=-0.0249590815779, y=0.999649402929, z=0.00737916180073, w=0.00486450832011)
+    starting_pose = Pose(position=Point(x=0.6, y=0.6, z=0.9), orientation=overhead_orientation) #starting pose may need to change due to rviz origin difference
     limb = 'left'
     hover_distance = 0.15  # meters
-    overhead_orientation = Quaternion(x=-0.0249590815779, y=0.999649402929, z=0.00737916180073, w=0.00486450832011)
-    starting_pose = Pose(position=Point(x=0.7, y=0.135, z=0.35), orientation=overhead_orientation)
     pnp = PickAndPlaceMoveIt(limb, hover_distance=hover_distance)
     pnp.move_to_start(starting_pose)
 
+    spawn_pose = Pose(Point(0.6, 0.6, 0.8), orient)
 
-    piece_positionmap = dict()
-    piece_names = []
-    spawned_object_poses = {}
     for row, each in enumerate(board_setup):
         # print("row:" + str(row)) 
         for col, piece in enumerate(each):
@@ -86,19 +79,22 @@ if __name__ == '__main__':
             piece_positionmap[str(row)+str(col)] = [pose.position.x, pose.position.y, pose.position.z-0.93] #0.93 to compensate Gazebo RViz origin difference
             
             
+            try:
+                spawn_piece = rospy.ServiceProxy('/gazebo/spawn_sdf_model', SpawnModel)
+                spawn_piece("%s%d"%{piece, col}, pieces_xml[piece], "/", spawn_pose, "world")
+            except rospy.ServiceException, e:
+                rospy.logerr("Spawn SDF service call failed: {0}".format(e))
+
             if piece in list_pieces:
                 piece_names.append("%s%d" % (piece,col))
-                robo_name = "%s%d" % (piece,col)
-            
 
-                # print srv_call(robo_name, pieces_xml[piece], "", pose, "world") #CHANGE POSE TO SPAWN POSE
-                print srv_call(robo_name, pieces_xml[piece], "", spawn_pose, "world")
-                print spawn_pose
-                # pick and place call
-                setup_chess_board.move_piece(spawn_pose=spawn_pose, ending_pose=pose, overhead_orientation=overhead_orientation)
+                pick = Pose(position=Point(x=0.6, y= 0.6, z=0.8-0.93),
+                        orientation= overhead_orientation)
                 
-                
-                
+                place = Pose(position=Point(x=pose.position.x, y=pose.position.y, z=pose.position.z-0.93),
+                        orientation= overhead_orientation)
+                pnp.pick(pick)
+                pnp.place(place)
 
     rospy.set_param('board_setup', board_setup) # Board setup
     rospy.set_param('list_pieces', list_pieces) # List of unique pieces
