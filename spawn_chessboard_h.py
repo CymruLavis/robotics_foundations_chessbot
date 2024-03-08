@@ -23,8 +23,8 @@ if __name__ == '__main__':
     limb = 'left'
     starting_pose = Pose(position=Point(x=0.5, y=0.4, z=0.0), orientation=overhead_orientation) #starting pose may need to change due to rviz origin difference
     
-    # pnp = PickAndPlaceMoveIt(limb, hover_distance=hover_distance)
-    # pnp.move_to_start(starting_pose)
+    pnp = PickAndPlaceMoveIt(limb, hover_distance=hover_distance)
+    pnp.move_to_start(starting_pose)
 
     # Table
     model_path = rospkg.RosPack().get_path('baxter_sim_examples')+"/models/"
@@ -61,7 +61,7 @@ if __name__ == '__main__':
         with open(model_path + each+".sdf", "r") as f:
             pieces_xml[each] = f.read().replace('\n', '')
 
-    # board_setup = ['rnbqkbnr', 'pppppppp', '', '', '', '', 'PPPPPPPP', 'RNBQKBNR']
+    # board_setup = ['rnbqkbnr', 'pppppppp', '********', '********', '********', '********', 'PPPPPPPP', 'RNBQKBNR']
     # board_setup = ['r******r', '', '**k*****', '', '', '******K*', '', 'R******R']
     board_setup = ['r*bqk*nr', '***pp***', '********', '********', '********', '******K*', '********', 'R******R']
 

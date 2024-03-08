@@ -4,7 +4,6 @@ import copy
 
 import rospy
 import rospkg
-import tf
 
 from std_msgs.msg import (
     Empty,
@@ -24,6 +23,7 @@ from gazebo_msgs.srv import (
 import baxter_interface
 import moveit_commander
 from setup_chess_board import PickAndPlaceMoveIt
+overhead_orientation = Quaternion(x=-0.0249590815779, y=0.999649402929, z=0.00737916180073, w=0.00486450832011)
 
 from gazebo_msgs.msg import ModelState
 from gazebo_msgs.srv import GetModelState
@@ -37,8 +37,6 @@ def get_pose(model_name):
 
 def movement_setup():
     # sequence of chess moves
-    overhead_orientation = Quaternion(x=-0.025, y=1, z=0.007, w=0.005)
-
     pos_map = rospy.get_param("piece_target_position_map")
     full_map = rospy.get_param('grid_poses')
    
@@ -73,11 +71,9 @@ def movement_setup():
     return pick_poses, place_poses
 
 def main():
-    
     moveit_commander.roscpp_initialize(sys.argv)
     rospy.init_node("ik_pick_and_place_moveit")
     rospy.wait_for_message("/robot/sim/started", Empty)
-    overhead_orientation = Quaternion(x=-0.025, y=1, z=0.007, w=0.005)
 
     limb = 'left'
     hover_distance = 0.15  # meters
