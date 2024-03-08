@@ -15,8 +15,5 @@ Terminal 3:
 Terminal 4:
   rosrun chess_baxter spawn_chessboard_h.py
 
-Terminal 5: --> this one may be unnesecarry
-  rosrun chess_baxter gazebo2tfframe.py
-
-Terminal 6:
+Terminal 5:
   rosrun chess_baxter play_chess.py
