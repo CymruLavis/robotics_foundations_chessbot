@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <robot name="cafe_table" xmlns:xacro="http://www.ros.org/wiki/xacro">
-  <link name="cafe_table__link"> 
+  <link name="cafe_table__link">
     <inertial>
       <mass value="0"/>
       <origin rpy="0  0  0" xyz="0  0  0"/>
@@ -32,9 +32,9 @@
     </visual>
   </link>
   <joint name="cafe_table_fixed" type="fixed">
-    <origin rpy="0 0 0" xyz="1.0 0 -0.93"/>
+    <origin rpy="0 0 0" xyz= "1.0 0 -0.93"/>
     <axis xyz="0 0 1"/>
     <parent link="world"/>
     <child link="cafe_table__link"/>
-</joint>
+  </joint>
 </robot>

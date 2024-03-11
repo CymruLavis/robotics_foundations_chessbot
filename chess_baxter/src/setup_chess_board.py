@@ -50,7 +50,14 @@ class PickAndPlaceMoveIt(object):
         self._group.execute(plan)
         rospy.sleep(1.0)
         print("Running. Ctrl-c to quit")
+    def move_to_common_point(self, start_angles=None):
+        print("Moving the {0} arm to start pose...".format(self._limb_name))
 
+        self._group.set_pose_target(start_angles)
+        plan = self._group.plan()
+        self._group.execute(plan)
+        rospy.sleep(1.0)
+        print("Running. Ctrl-c to quit")
     def _guarded_move_to_joint_position(self, joint_angles):
         if joint_angles:
             self._limb.move_to_joint_positions(joint_angles)

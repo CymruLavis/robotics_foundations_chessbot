@@ -4,6 +4,7 @@ import copy
 
 import rospy
 import rospkg
+import tf
 
 from std_msgs.msg import (
     Empty,
@@ -23,39 +24,24 @@ from gazebo_msgs.srv import (
 import baxter_interface
 import moveit_commander
 from setup_chess_board import PickAndPlaceMoveIt
-import gazebo2tfframe
 
-def main():
-    moveit_commander.roscpp_initialize(sys.argv)
-    rospy.init_node("ik_pick_and_place_moveit")
-    
-    
-    rospy.wait_for_message("/robot/sim/started", Empty)
-    limb = 'left'
-    hover_distance = 0.15  # meters
+from gazebo_msgs.msg import ModelState
+from gazebo_msgs.srv import GetModelState
 
-    overhead_orientation = Quaternion(x=-0.0249590815779, y=0.999649402929, z=0.00737916180073, w=0.00486450832011)
-    
-    pnp = PickAndPlaceMoveIt(limb, hover_distance)
-   
-    pnp.move_to_start(starting_pose)
-
-    picks, places = movement_setup()
-
-    for i in range(len(picks))
-        pnp.pick(picks[i])
-        pnp.place([places[i]])
-
-
-    return 0
-
-
-if __name__ == '__main__':
-    sys.exit(main())
+def get_pose(model_name):
+    rospy.wait_for_service('/gazebo/get_model_state')
+    model_state = rospy.ServiceProxy('/gazebo/get_model_state', GetModelState)
+    response = model_state(model_name, '')
+    response.pose.position.z = response.pose.position.z-0.93
+    return response.pose
 
 def movement_setup():
     # sequence of chess moves
+    overhead_orientation = Quaternion(x=-0.025, y=1, z=0.007, w=0.005)
+
     pos_map = rospy.get_param("piece_target_position_map")
+    full_map = rospy.get_param('grid_poses')
+   
     # pos_map = [ [ 0, 1, 2, 3, 4, 5, 6, 7],
     #             [ 8, 9,10,11,12,13,14,15],
     #             [16,17,18,19,20,21,22,23],
@@ -71,15 +57,63 @@ def movement_setup():
 
     pick_pieces = ['p4', 'p3', 'n6', 'b2', 'q3', 'k4']
     pick_poses = []
-    places = [27,18,23,38,11,3]
+    places = [28,19,23,38,11,3]
     place_poses = []
-
+    # rospy.init_node('get_model_pose_node')
+    
     for piece in pick_pieces:
-        pose = gazebo2tfframe.main(piece)
-        pick_poses.append(Pose(position=Point(x=pose[0], y=pose[1], z=pose[2]), orientation=overhead_orientation))
-
+        pose = get_pose(piece)
+        pick_poses.append(Pose(position=Point(x=pose.position.x, y=pose.position.y, z=pose.position.z), orientation=overhead_orientation))
+    
     for place in places:
-        pose = positions[place]
-        place_poses.append(Pose(position=Point(x=pose[0], y=pose[1], z=pose[2]), orientation=overhead_orientation))
+        print(len(full_map))
+        pose = full_map[place]
+        place_poses.append(Pose(position=Point(x=pose[0], y=pose[1], z=pose[2]), orientation= overhead_orientation))
 
     return pick_poses, place_poses
+
+def main():
+    
+    moveit_commander.roscpp_initialize(sys.argv)
+    rospy.init_node("ik_pick_and_place_moveit")
+    rospy.wait_for_message("/robot/sim/started", Empty)
+    overhead_orientation = Quaternion(x=-0.025, y=1, z=0.007, w=0.005)
+
+    limb = 'left'
+    hover_distance = 0.15  # meters
+    # overhead_orientation = Quaternion(x=-0.0249590815779, y=0.999649402929, z=0.00737916180073, w=0.00486450832011)
+    common_pose = Pose(Point(0.57,0.3,0.8+hover_distance), overhead_orientation)
+    
+    pnp = PickAndPlaceMoveIt(limb, hover_distance)   
+    pnp.move_to_start(common_pose)
+    picks, places = movement_setup()
+
+
+    for i in range(len(picks)):
+        # print("PICK POSE FOR:\n", picks[i])
+        # print("PLACE POSE:\n", places[i])
+        # this_pick = picks[i]
+        # this_place = places[i]
+
+        over_pick_pose = Pose(Point(x=picks[i].position.x, y=picks[i].position.y, z=picks[i].position.z-0.93+hover_distance), overhead_orientation)
+        over_place_pose = Pose(Point(x= places[i].position.x, y=places[i].position.y, z=places[i].position.z-0.93+hover_distance), overhead_orientation)
+
+        # hover over pick piece, pick it up, hover over pick piece
+        pnp.move_to_common_point(over_pick_pose)
+        pnp.pick(picks[i])
+        pnp.move_to_common_point(over_pick_pose)
+
+        # hover over place location, place, hover over place location
+        pnp.move_to_common_point(over_place_pose)
+        pnp.place(places[i])
+        pnp.move_to_common_point(over_place_pose)
+
+       
+    pnp.move_to_start(common_pose)
+    return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())
+    
+
