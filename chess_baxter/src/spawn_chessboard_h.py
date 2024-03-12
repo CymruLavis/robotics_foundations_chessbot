@@ -87,23 +87,23 @@ if __name__ == '__main__':
                 piece_name = piece+str(col)
                 try:
                     spawn_sdf = rospy.ServiceProxy('/gazebo/spawn_sdf_model', SpawnModel)
-                    # spawn_sdf(piece_name, pieces_xml[piece], "/", spawn_pose, "world")
-                    spawn_sdf(piece_name, pieces_xml[piece], "/", pose, "world")
+                    spawn_sdf(piece_name, pieces_xml[piece], "/", spawn_pose, "world")
+                    # spawn_sdf(piece_name, pieces_xml[piece], "/", pose, "world")
 
                     # THIS WORKS, JUST UNCOMMENT
-                    # pick = Pose(position=Point(x=spawn_pose.position.x, y= spawn_pose.position.y, z=spawn_pose.position.z-0.93),
-                    #     orientation= overhead_orientation)
+                    pick = Pose(position=Point(x=spawn_pose.position.x, y= spawn_pose.position.y, z=spawn_pose.position.z-0.93),
+                        orientation= overhead_orientation)
 
-                    # place = Pose(position=Point(x=pose.position.x, y=pose.position.y, z=pose.position.z-0.93),
-                    #         orientation= overhead_orientation)
+                    place = Pose(position=Point(x=pose.position.x, y=pose.position.y, z=pose.position.z-0.93),
+                            orientation= overhead_orientation)
                     
-                    # pnp.pick(pick)
-                    # pnp.move_to_common_point(common_pose)
-                    # release_pose = Pose(Point(x= pose.position.x, y=pose.position.y, z=pose.position.z-0.93+hover_distance), overhead_orientation)
-                    # pnp.move_to_common_point(release_pose)
-                    # pnp.place(place)
-                    # pnp.move_to_common_point(release_pose)
-                    # pnp.move_to_common_point(common_pose)
+                    pnp.pick(pick)
+                    pnp.move_to_common_point(common_pose)
+                    release_pose = Pose(Point(x= pose.position.x, y=pose.position.y, z=pose.position.z-0.93+hover_distance), overhead_orientation)
+                    pnp.move_to_common_point(release_pose)
+                    pnp.place(place)
+                    pnp.move_to_common_point(release_pose)
+                    pnp.move_to_common_point(common_pose)
 
                 except rospy.ServiceException, e:
                     rospy.logerr("Spawn SDF service call failed: {0}".format(e))
